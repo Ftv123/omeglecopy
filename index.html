@@ -84,6 +84,13 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: false })
                 // Código para enviar la respuesta al otro usuario
 
                 // Lógica para recibir la respuesta desde el otro par
+                socket.on('answerFromOtherUser', async (answer) => {
+    try {
+        await peerConnection.setRemoteDescription(answer);
+    } catch (e) {
+        console.error('Error al manejar la respuesta remota:', e);
+    }
+});
                 // Código para recibir la respuesta del otro usuario
                 // Setear la respuesta remota
                 // await peerConnection.setRemoteDescription(response);
@@ -98,7 +105,10 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: false })
 
 
 
+<!-- ... (código anterior) -->
+
 const socket = io('https://omeglecopy.onrender.com'); // Especifica la dirección de tu servidor
+let otherUserId; // Variable para almacenar el ID del otro usuario
 
 socket.on('connect', () => {
     console.log('Conectado al servidor de señalización');
@@ -112,9 +122,51 @@ function findRandomUser() {
 
 socket.on('randomUserFound', (randomUserId) => {
     // Lógica para manejar el usuario aleatorio encontrado
+    otherUserId = randomUserId; // Almacena el ID del usuario aleatorio
     // Aquí puedes establecer la conexión con el usuario aleatorio
-    // o realizar cualquier otra lógica necesaria.
+    handleRandomUserConnection();
 });
+
+async function handleRandomUserConnection() {
+    const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+    const peerConnection = new RTCPeerConnection(configuration);
+
+    localStream.getTracks().forEach(track => {
+        peerConnection.addTrack(track, localStream);
+    });
+
+    peerConnection.ontrack = event => {
+        remoteStream = event.streams[0];
+        remoteVideo.srcObject = remoteStream;
+    };
+
+    peerConnection.onicecandidate = event => {
+        if (event.candidate) {
+            // Enviar la candidatura ICE al otro par
+            // Código para enviar la candidatura ICE al otro usuario (usando otherUserId)
+        }
+    };
+
+    try {
+        const offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
+
+        // Enviar la oferta al usuario aleatorio
+        socket.emit('offerToOtherUser', { offer, userId: otherUserId });
+    } catch (e) {
+        console.error('Error al crear la oferta:', e);
+    }
+
+    socket.on('answerFromOtherUser', async (answer) => {
+        try {
+            await peerConnection.setRemoteDescription(answer);
+        } catch (e) {
+            console.error('Error al manejar la respuesta remota:', e);
+        }
+    });
+}
+
+// ... (resto del código)
 
 
 
