@@ -20,8 +20,11 @@ video {
         <video id="localVideo" autoplay muted></video>
         <video id="remoteVideo" autoplay></video>
     </div>
+    <button id="randomButton">Conectar con un usuario aleatorio</button>
+
+    <script src="https://cdn.socket.io/4.3.2/socket.io.js"></script>
     <script>
-        let localStream;
+            let localStream;
 let remoteStream;
 let localVideo = document.getElementById('localVideo');
 let remoteVideo = document.getElementById('remoteVideo');
@@ -92,6 +95,31 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: false })
         // Aquí se deben implementar las funciones que envíen y reciban ofertas, respuestas y candidatos ICE.
     })
     .catch(handleError);
+
+
+
+const socket = io('https://omeglecopy.onrender.com'); // Especifica la dirección de tu servidor
+
+socket.on('connect', () => {
+    console.log('Conectado al servidor de señalización');
+    document.getElementById('randomButton').addEventListener('click', findRandomUser);
+});
+
+function findRandomUser() {
+    // Emitir evento al servidor para buscar un usuario aleatorio
+    socket.emit('randomUser');
+}
+
+socket.on('randomUserFound', (randomUserId) => {
+    // Lógica para manejar el usuario aleatorio encontrado
+    // Aquí puedes establecer la conexión con el usuario aleatorio
+    // o realizar cualquier otra lógica necesaria.
+});
+
+
+
+
+
 
     </script>
 </body>
