@@ -1,36 +1,38 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Omegle with Video Call</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Video Chat</title>
+    <style>
+     #videos {
+
+    display: flex;
+
+    justify-content: space-around;
+
+}
+
+video {
+
+    width: 45%;
+
+    border: 1px solid black;
+
+}
+    </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Omegle with Video Call</h1>
+    <div id="videos">
+        <video id="localVideo" autoplay muted></video>
+        <video id="remoteVideo" autoplay></video>
     </div>
+    <script>
+     let localStream;
 
-    <div class="container">
-        <div class="left-side">
-            <h2>Available Users</h2>
-            <ul id="users-list"></ul>
-        </div>
+let remoteStream;
 
-        <div class="right-side">
-            <h2>Selected User</h2>
-            <div id="selected-user"></div>
+let localVideo = document.getElementById('localVideo');
 
-            <h2>Video Call</h2>
-            <div id="local-video"></div>
-            <div id="remote-video"></div>
+let remoteVideo = document.getElementById('remoteVideo');
 
-            <button id="start-call">Start Video Call</button>
-        </div>
-    </div>
-
-    <script src="https://cdn.socket.io/4.4.1/socket.io.min.js"></script>
-    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-    <script src="script.js"></script>
-</body>
-</html>
+function handleError(error) {
